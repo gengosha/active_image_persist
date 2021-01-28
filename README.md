@@ -63,7 +63,6 @@ end
 view(slim ver)
 this is just my way to show the images, original if attached, cache if persisted
 ```
-...
 - if persisted_img(:avatar, 'dummy-class', 'height: 250px')
     = persisted_img(:avatar, 'dummy-class', 'height: 250px')
 - else
