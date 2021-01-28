@@ -49,11 +49,6 @@ class DummyController < ApplicationController
     end
   end
 
-  private
-  def set_record
-    @record = DummyClass.find(params[:id])
-  end
-
   def record_params
     params.require(:record).permit(:dummy_attribute, :avatar, association_attributes: [:dummy_attribute, :avatar])
   end
