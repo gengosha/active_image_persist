@@ -45,7 +45,7 @@ class DummyController < ApplicationController
 
   def create // or update
     @record.build_association_tag
-    @record.assign_attributes(attributes.except(:avatar, association_attributes: :avatar))
+    @record.assign_attributes(record_params.except(:avatar, association_attributes: :avatar))
 
     if @record.save
       attach_img_to @record, record_params # this method will attach images persisted by the cache or an image files that have just been uploaded
