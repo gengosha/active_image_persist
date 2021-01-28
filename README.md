@@ -58,14 +58,14 @@ end
 view(slim ver)
 this is just my way to show the images, original if attached, cache if persisted
 ```
-- if persisted_img(:avatar, 'dummy-class', 'height: 250px')
+- if persisted_img(:avatar)
     = persisted_img(:avatar, 'dummy-class', 'height: 250px')
 - else
     = image_tag @record.avatar, style: 'height: 250px' if @record.avatar.attached?
 ```
 and for association *up to 1 level only
 ```
-- if persisted_img({association_attributes: :avatar}, 'dummy-class', 'height: 250px')
+- if persisted_img({association_attributes: :avatar})
     = persisted_img({association_attributes: :avatar}, 'dummy-class', 'height: 250px')
 - else
     = image_tag @record.association.avatar, style: 'height: 250px' if @record.association.avatar.attached?
