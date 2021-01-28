@@ -1,83 +1,67 @@
-# frozen_string_literal: true
-
-require_relative "active_image_persist/version"
-
 module ActiveImagePersist
-  class Error < StandardError; end
-  # Your code goes here...
+  extend ActiveSupport::Concern
+  included do
+    helper_method :persisted_img
 
-  # def new
-  #   delete_cache
-  # end
+    def attach_img_to(obj, params)
+      return if @keys.blank? || !params.is_a?(ActionController::Parameters) || obj.blank?
+      begin
+        @keys.each do |k|
+          s = k.to_s.gsub('{:', '').gsub('_attributes=>:', '.').gsub('}', '')
+          file = k.is_a?(Hash) ? params[k.first[0].to_s][k.first[1].to_s] : params[k]
+          cache = k.is_a?(Hash) ? cookies["#{k.first[0].to_s}_#{k.first[1].to_s}".to_sym] : cookies[k]
 
-  # def edit
-  #   delete_cache
-  # end
-
-  # def create
-  #   if save
-  #     attach_images_to @obj, params
-  #   else
-  #     persist_img
-  #   end
-  # end
-
-  # def update
-  #   if update
-  #     attach_images_to @obj, params
-  #   else
-  #     persist_img
-  #   end
-  # end
-
-  def attach_img_to(obj, params)
-    return if @keys.blank? || params != Hash || obj.blank?
-    @keys.each do |k|
-      if params[k].present?
-        obj.call(k.to_s).purge if obj.call(k).attached?
-        obj.call(k.to_s).attach(params[k])
-      elsif cookies[:active_image_persist][k].present?
-        obj.call(k.to_s).purge if obj.call(k.to_s).attached?
-        obj.call(k.to_s).attach(ActiveStorage::Blob.find_by(key: cookies[:active_image_persist][k]))
-      end
+          if file.present?
+            eval("obj.#{s}.purge if obj.#{s}.attached?")
+            eval("obj.#{s}.attach(file)")
+          elsif cache.present?
+            eval("obj.#{s}.purge if obj.#{s}.attached?")
+            eval("obj.#{s}.attach(ActiveStorage::Blob.find_by(key: cache))")
+          end
+        end
+      rescue; end
+      delete_cache
     end
-    delete_cache
-  end
 
-  def persist_img params
-    return if @keys.blank? || params != Hash
-    @keys.each do |k|
-      if params[k].present?
-        file = params[k]
-        img = ActiveStorage::Blob.create_and_upload!(io: file, filename: file.original_filename)
-        cookies['active_image_persist'][k] = img
-      end
+    def persist_img params
+      return if @keys.blank? || !params.is_a?(ActionController::Parameters)
+      begin
+        @keys.each do |k|
+          file = k.is_a?(Hash) ? params[k.first[0]][k.first[1]] : params[k]
+          cache_sym = k.is_a?(Hash) ? "#{k.first[0].to_s}_#{k.first[1].to_s}".to_sym : k
+          if file.present?
+            img = ActiveStorage::Blob.create_and_upload!(io: file, filename: file.original_filename)
+            cookies[cache_sym] = img.key
+          end
+        end
+      rescue; end
     end
-  end
 
-  def delete_cache
-    return if @keys.blank?
-    @keys.each do |k|
-      cookies.delete ['active_image_persist'][k]
+    def delete_cache
+      return if @keys.blank?
+      begin
+        @keys.each do |k|
+          cache_sym = k.is_a?(Hash) ? "#{k.first[0].to_s}_#{k.first[1].to_s}".to_sym : k
+          cookies.delete cache_sym
+        end
+      rescue; end
     end
-  end
 
-  def persisted_img(k=nil, klass='', style='')
-    blob = ActiveStorage::Blob.find_by(key: cookies['active_image_persist'][k])
-    unless blob.blank?
-      image_tag(blob, style: style, class: klass)
-    else
-      nil
+    def persisted_img(k=nil, klass='', style='')
+      begin
+        cache_sym = k.is_a?(Hash) ? "#{k.first[0].to_s}_#{k.first[1].to_s}".to_sym : k
+        blob = ActiveStorage::Blob.find_by(key: cookies[cache_sym])
+        unless blob.blank?
+          ("<img src='#{url_for(blob)}' style='#{style}' class='#{klass}'>").html_safe
+        else
+          nil
+        end
+      rescue; end
     end
-  end
 
-  def clean_unassociated_blobs
-    ids = ActiveStorage::Blob.all.select{|e| e.attachments.blank? }.pluck(:id)
-    ActiveStorage::Blob.where(id: unassociated_blob_ids).each {|e| e.purge }
-  end
-
-  def setup_persist_img arr
-    return if arr.blank? || arr != Array
-    @keys = arr
+    def setup_persist_img arr
+      return if arr.blank? || !arr.is_a?(Array)
+      @keys = arr
+    end
   end
 end
