@@ -23,11 +23,11 @@ ActiveStorage's installation is required.
 https://edgeguides.rubyonrails.org/active_storage_overview.html
 
 There are 5 methods provided by this gem, 4 for the controller and 1 for the view.
-- setup_persist_img([])
+- setup_persist_img([:sym])
 - attach_img_to(@record, record_params)
 - persist_img(record_params)
 - delete_cache
-- persisted_img(sym, 'class', 'style')
+- persisted_img(:sym, 'class', 'style')
 
 detailed explanation below
 
