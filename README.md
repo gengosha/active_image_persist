@@ -41,7 +41,7 @@ class DummyController < ApplicationController
     @record.assign_attributes(attributes.except(:avatar, association_attributes: :avatar))
 
     if @record.save
-      attach_img_to @record, record_params # this method will attach image persisted by the cache or an image files that have just been uploaded
+      attach_img_to @record, record_params # this method will attach images persisted by the cache or an image files that have just been uploaded
       redirect_to tcadmin_record_path(@record.id)
     else
       persist_img record_params # this method will persist the image files upon validation error, by saving it into the ActiveStorage
