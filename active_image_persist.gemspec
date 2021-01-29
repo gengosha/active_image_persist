@@ -8,8 +8,8 @@ Gem::Specification.new do |spec|
   spec.authors       = ["wonghockchuansugianto"]
   spec.email         = ["sugi@gengosha.co.jp"]
 
-  spec.summary       = "Write a short summary, because RubyGems requires one."
-  spec.description   = "Write a longer description or delete this line."
+  spec.summary       = "This gem provides you an interactive way to deal with image files lost from validation error."
+  spec.description   = "This gem is intended to help with image files lost or corruption in the view from validation error with active storage. ActiveStorage's installation is required."
   spec.homepage      = "https://github.com/wonghockchuansugianto/active_image_persist"
   spec.license       = "MIT"
   spec.required_ruby_version = Gem::Requirement.new(">= 2.3.0")
