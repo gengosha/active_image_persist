@@ -38,18 +38,18 @@ class DummyController < ApplicationController
   include ActiveImagePersist # include the gem
   before_action { setup_persist_img [:avatar, association_attributes: :avatar] } # needed for the setup of the gem, must be an array
 
-  def new // or edit
+  def new # or edit
     @record = DummyClass.new
     delete_cache # cache needs to be fresh upon reloading new or edit page, this method will clean up the caches
   end
 
-  def create // or update
+  def create # or update
     @record.build_association_tag
     @record.assign_attributes(record_params.except(:avatar, association_attributes: :avatar))
 
     if @record.save
       attach_img_to @record, record_params # this method will attach images persisted by the cache or an image files that have just been uploaded
-      redirect_to tcadmin_record_path(@record.id)
+      redirect_to record_path(@record.id)
     else
       persist_img record_params # this method will persist the image files upon validation error, by saving it into the ActiveStorage
       render 'new'
