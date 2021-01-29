@@ -78,7 +78,12 @@ and for association *up to 1 level only
     = image_tag @record.association.avatar, style: 'height: 250px' if @record.association.avatar.attached?
 ```
 
-IMPORTANT: the persisted files stored in the ActiveStorage will not be purged by itself, you might need to use whenever to set up a cron task to delete unassociated ActiveStorage's blobs
+IMPORTANT: the persisted files stored in the ActiveStorage will not be purged by itself, you might need to use whenever to set up a cron task to delete unassociated ActiveStorage's blobs like so
+
+```
+unassociated_blob_ids = ActiveStorage::Blob.all.select{|e| e.attachments.blank? }.pluck(:id)
+ActiveStorage::Blob.where(id: unassociated_blob_ids).each {|e| e.purge }
+```
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
