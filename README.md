@@ -35,7 +35,7 @@ example of usage
 controller
 ```
 class DummyController < ApplicationController
-  include ActiveImagePersist
+  include ActiveImagePersist # include the gem
   before_action { setup_persist_img [:avatar, association_attributes: :avatar] } # needed for the setup of the gem, must be an array
 
   def new // or edit
