@@ -17,11 +17,11 @@ module ActiveImagePersist
             s = s_ar[1]
           end
 
+          obj.send(s).purge if obj.send(s).attached?
+
           if file.present?
-            obj.send(s).purge if obj.send(s).attached?
             obj.send(s).attach(file)
           elsif cache.present?
-            obj.send(s).purge if obj.send(s).attached?
             obj.send(s).attach(ActiveStorage::Blob.find_by(key: cache))
           end
         end
